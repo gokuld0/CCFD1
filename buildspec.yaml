@@ -1,26 +1,31 @@
 version: 0.2
 
 phases:
+  install:
+    runtime-versions:
+      python: 3.7  # Specify the Python version if needed
+    commands:
+      - echo "No installation required for this simple build."
+      
   pre_build:
     commands:
-      - echo Logging in to Amazon ECR Public...
-      - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/u4i0c1o5
-      - REPOSITORY_URI=public.ecr.aws/u4i0c1o5/your-image-name  # Replace with your ECR repository URI
-      - IMAGE_TAG=$CODEBUILD_RESOLVED_SOURCE_VERSION            # Use the commit hash as the image tag
+      - echo "Logging in to Amazon ECR Public..."
+      - aws ecr-public get-login-password --region us-east-1 > password.txt
+      - docker login --username AWS --password $(cat password.txt) public.ecr.aws/u4i0c1o5
+      - rm password.txt  # Clean up the password file
 
   build:
     commands:
-      - echo Building the Docker image...
-      - docker build -t $REPOSITORY_URI:$IMAGE_TAG .
-  
+      - echo "Building the Docker image..."
+      - docker build -t flask-app .
+
   post_build:
     commands:
-      - echo Pushing the Docker image to ECR...
-      - docker push $REPOSITORY_URI:$IMAGE_TAG
-      - echo Writing image definition file...
-      # This will create a file for CodeDeploy to use in the next step
-      - printf '[{"name":"app-container","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+      - echo "Tagging and pushing the Docker image to ECR Public..."
+      - docker tag flask-app:latest public.ecr.aws/u4i0c1o5/flask-app:latest
+      - docker push public.ecr.aws/u4i0c1o5/flask-app:latest
 
 artifacts:
   files:
-    - imagedefinitions.json
+    - '*/'
+  base-directory: .

@@ -1,0 +1,30 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main  # Trigger on pushes to the main branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Log in to Amazon ECR Public
+        run: |
+          aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/u4i0c1o5
+
+      - name: Build Docker image
+        run: |
+          docker build -t car_price_prediction .
+
+      - name: Tag and push Docker image to ECR Public
+        run: |
+          docker tag flask-app:latest public.ecr.aws/u4i0c1o5/flask-app:latest
+          docker push public.ecr.aws/u4i0c1o5/flask-app:latest 
