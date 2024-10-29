@@ -3,29 +3,25 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      python: 3.7  # Specify the Python version if needed
+      python: 3.8
     commands:
-      - echo "No installation required for this simple build."
-      
+      - echo Configuring AWS CLI...
+      # No AWS credentials should be included here.
+
   pre_build:
     commands:
-      - echo "Logging in to Amazon ECR Public..."
-      - aws ecr-public get-login-password --region us-east-1 > password.txt
-      - docker login --username AWS --password $(cat password.txt) public.ecr.aws/u4i0c1o5
-      - rm password.txt  # Clean up the password file
+      - echo Logging in to Amazon ECR Public...
+      - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/u4i0c1o5
 
   build:
     commands:
-      - echo "Building the Docker image..."
-      - docker build -t flask-app .
+      - echo Build started on date
+      - echo Building the Docker image...
+      - docker build -t housing_price:latest .
+      - docker tag housing_price:latest public.ecr.aws/u4i0c1o5/car-price:latest     
 
   post_build:
     commands:
-      - echo "Tagging and pushing the Docker image to ECR Public..."
-      - docker tag flask-app:latest public.ecr.aws/u4i0c1o5/flask-app:latest
-      - docker push public.ecr.aws/u4i0c1o5/flask-app:latest
-
-artifacts:
-  files:
-    - '*/'
-  base-directory: .
+      - echo Build completed on date
+      - echo Pushing the Docker image...
+      - docker push public.ecr.aws/u4i0c1o5/car-price:latest
