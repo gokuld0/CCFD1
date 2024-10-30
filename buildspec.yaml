@@ -17,8 +17,8 @@ phases:
     commands:
       - echo Build started on date
       - echo Building the Docker image...
-      - docker build -t housing_price:latest .
-      - docker tag housing_price:latest public.ecr.aws/u4i0c1o5/car-price:latest     
+      - docker build -t car-price:latest .
+      - docker tag car-price:latest public.ecr.aws/u4i0c1o5/car-price:latest     
 
   post_build:
     commands:
