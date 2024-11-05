@@ -1,26 +1,25 @@
 #!/bin/bash
 
-# Check if Docker is installed
-if ! command -v docker &> /dev/null; then
+# Function to install Docker
+install_docker() {
     echo "Docker not found. Installing Docker..."
     sudo yum update -y
     sudo yum install -y docker
-
-    # Start and enable Docker
     sudo systemctl start docker
     sudo systemctl enable docker
-
-    # Add the current user to the Docker group
     sudo usermod -aG docker ec2-user
     echo "Docker installed successfully."
-else
-    echo "Docker Found"
-fi
+}
 
-# Check if AWS CLI is installed
-if ! command -v aws &> /dev/null; then
+# Function to install AWS CLI
+install_aws_cli() {
     echo "AWS CLI not found. Installing AWS CLI..."
     sudo yum install -y aws-cli
-else
-    echo "AWS CLI is already installed."
-fi
+    echo "AWS CLI installed successfully."
+}
+
+# Check and install Docker if necessary
+command -v docker &> /dev/null || install_docker && echo "Docker found."
+
+# Check and install AWS CLI if necessary
+command -v aws &> /dev/null || install_aws_cli && echo "AWS CLI is already installed."
