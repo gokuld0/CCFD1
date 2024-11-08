@@ -25,3 +25,12 @@ phases:
       - echo "Build completed on $(date)"
       - echo Pushing the Docker image...
       - docker push public.ecr.aws/u4i0c1o5/car-price:latest
+artifacts:
+  files:
+    - scripts/before_install.sh
+    - scripts/application_start.sh
+    - scripts/application_stop.sh
+    - scripts/after_install.sh
+    - '*/' # Or specific files if needed
+  discard-paths: yes
+  name: artifact.zip
